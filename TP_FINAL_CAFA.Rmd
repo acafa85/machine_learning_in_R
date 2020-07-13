@@ -1,0 +1,560 @@
+---
+title: "Trabajo Práctico Final - TAA"
+author: "Adrian Pablo Cafa"
+date: "7/12/2019"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r eval=FALSE}
+# Ejercicio 1 – Aprendizaje Supervisado
+
+En este ejercicio se pide comparar 2 modelos de predicción sobre los movimientos de
+un robot. Primero se realiza un Análisis Exploratorio de los Datos para entender la
+base, luego se particiona la base en un conjunto de entrenamiento y uno de testeo,
+después con estos conjuntos se realiza un modelo de SVM y un modelo de Naive Bayes
+(con la librería e1071) y finalmente se comparan las mediciones de la performance de
+ambos modelos (con la librería caret).
+```
+
+```{r eval=FALSE}
+Parte A – Análisis Exploratorio de los Datos
+```
+
+```{r eval=FALSE}
+1) Abra la base sensor_readings_24.data del repositorio UCI en la página
+https://archive.ics.uci.edu/ml/datasets/Wall-Following+Robot+Navigation+Data
+Indique de qué trata el problema
+```
+
+El dataset contiene los valores brutos de las mediciones de 24 sensores de ultrasonido y la etiqueta de clase correspondiente. 
+Las lecturas del sensor se muestrean en una tasa de 9 muestras por segundo.
+
+```{r eval=FALSE}
+2) Renombre el archivo sensor_readings_24.data como sensor_readings_24.data.csv y
+ábralo en R como “base”
+base=read.csv(“sensor_readings_24.data.csv”, sep=”,”, header=FALSE)
+```
+
+```{r eval=TRUE}
+base=read.csv("sensor_readings_24.data.csv", sep=",", header=FALSE)
+dim(base)
+```
+
+```{r eval=FALSE}
+3) Muestre un head de la base
+```
+
+```{r eval=TRUE}
+head(base)
+```
+
+```{r eval=FALSE}
+4) Renombre la variable categórica V25 como “Mov”
+names(base)[names(base)=="V25"]="Mov"
+Muestre un head de la base con la variable renombrada.
+```
+
+```{r eval=TRUE}
+names(base)[names(base)=="V25"]="Mov"
+head(base)
+```
+
+```{r eval=FALSE}
+5) ¿Cuántas variables y registros tiene la base? ¿Cuántos registros por clase hay de la
+variable a predecir? ¿De qué tipo son las variables?
+```
+
+```{r eval=TRUE}
+dim(base)
+```
+
+```{r eval=FALSE}
+La base tiene 5456 registros o filas con 25 variables o colummas
+```
+
+```{r eval=FALSE}
+Registros por clase de la variable a predecir:
+```
+```{r eval=TRUE}
+summary(base$Mov)
+```
+
+```{r eval=FALSE}
+La única variable categórica es "Mov", variables discriminadas por tipo:
+```
+
+```{r eval=TRUE}
+str(base)
+```
+
+```{r eval=FALSE}
+6) Realice un gráfico de barras de la variable a predecir.
+```
+
+```{r echo=TRUE,eval=TRUE}
+table(base$Mov)
+par(las=2) # make label text perpendicular to axis
+par(mar=c(5,8,4,2)) # increase y-axis margin
+plot(x = base$Mov,col = rainbow(length(unique(base$Mov))), horiz=TRUE,cex.names=0.8)
+```
+
+```{r eval=FALSE}
+7) Realice un gráfico de dispersión con 2 variables, y coloréelo según la variable Mov
+```
+
+```{r eval=TRUE}
+names(base)
+
+plot(base$V5,base$V9,col = rainbow(length(unique(base$Mov))))
+
+```
+
+```{r eval=FALSE}
+#Parte B - Conjuntos
+```
+
+```{r eval=FALSE}
+1) Cargue la librería caret, setee la semilla=101 y particione la base en un conjunto de
+entrenamiento y uno de testeo, utilizando la instrucción createDataPartition de la
+librería caret. Setee p=0.70. Indique el código R utilizado.
+```
+
+```{r echo=T, eval=TRUE}
+
+library(caret)
+set.seed(101);particion=createDataPartition(y=base$Mov, p=0.7,list=FALSE)
+train=base[particion, ]
+test=base[-particion, ]
+```
+
+
+```{r eval=FALSE}
+2) Muestre un head, str y un summary del conjunto de entrenamiento y del conjunto de
+testeo.
+```
+
+```{r eval=FALSE}
+head, str y summary del conjunto train:
+```
+
+```{r echo=T, eval=TRUE}
+head(train)
+str(train)
+summary(train)
+```
+
+```{r eval=FALSE}
+head, str y summary del conjunto test:
+```
+
+```{r echo=T, eval=TRUE}
+head(test)
+str(test)
+summary(test)
+```
+
+
+```{r eval=FALSE}
+3) ¿Cuántos registros quedaron en cada conjunto (entrenaminento y testeo)? ¿Cuántos
+registros por clase de la variable Mov quedaron en cada conjunto?
+```
+
+```{r eval=FALSE}
+# Cantidad de registros y registros por clase en conjunto de entrenamiento:
+```
+
+```{r echo=T, eval=TRUE}
+dim(train)
+summary(train$Mov)
+```
+
+
+
+```{r eval=FALSE}
+# Cantidad de registros y registros por clase en conjunto de testeo:
+```
+
+```{r echo=T, eval=TRUE}
+dim(test)
+summary(test$Mov)
+```
+
+
+
+```{r eval=FALSE}
+#Parte C - SVM
+```
+
+```{r eval=FALSE}
+1) Cargue la librería e1071 y modele el problema planteado con una Support Vector
+Machine con un kernel = (asignado1) , costo = (asignado2) y los parámetros
+restantes con los valores por defecto sin cambiar. Indique el código R utilizado.
+```
+
+```{r eval=FALSE}
+
+ASIGNADO 1:
+Kernel polynomial
+
+ASIGNADO 2:
+Costo x defecto
+```
+
+
+
+```{r echo=T, eval=TRUE}
+library(e1071)
+svm=svm(iris.Species~.,iris,kernel="polynomial")
+plot(svm,iris)
+```
+
+```{r eval=FALSE}
+2) Calcule la matriz de confusión utilizando la instrucción confusionMatrix de la librería
+caret. Muestre una captura de pantalla de los resultados obtenidos.
+```
+
+```{r eval=FALSE}
+3) ¿Cuántos registros quedaron bien y mal clasificados?
+```
+
+```{r eval=FALSE}
+4) Calcule el accuracy según la cantidad de registros bien clasificados (indique la fórmula
+que usó) y verifique que coincida con el accuracy obtenido por confusionMatrix.
+```
+
+```{r eval=FALSE}
+5) ¿Cuál fue la sensibilidad y especificidad de cada clase?
+```
+
+```{r eval=FALSE}
+6) ¿Cuál clase presenta mayor sensibilidad y cuál clase presenta menor sensibilidad?
+```
+
+```{r eval=FALSE}
+#Parte D – Naive Bayes
+```
+
+```{r eval=FALSE}
+1) Cargue la librería e1071 y modele el problema planteado utilizando Naive Bayes.
+Indique el código R utilizado.
+```
+
+```{r eval=FALSE}
+2) Calcule la matriz de confusión utilizando la instrucción confusionMatrix de la librería
+caret. Muestre una captura de pantalla de los resultados obtenidos.
+```
+
+```{r eval=FALSE}
+3) ¿Cuántos registros quedaron bien y mal clasificados?
+```
+
+```{r eval=FALSE}
+4) Calcule el accuracy según la cantidad de registros bien clasificados (indique la fórmula
+que usó) y verifique que coincida con el accuracy obtenido por confusionMatrix.
+```
+
+```{r eval=FALSE}
+5) ¿Cuál fue la sensibilidad y especificidad de cada clase?
+```
+
+```{r eval=FALSE}
+6) ¿Cuál clase presenta mayor sensibilidad y cuál clase presenta menor sensibilidad?
+```
+
+```{r eval=FALSE}
+#Parte E - Comparación
+```
+
+```{r eval=FALSE}
+1) Compare los resultados obtenidos con la SVM y Naive Bayes. ¿Cuál modelo le parece
+que resultó mejor?
+```
+
+```{r eval=FALSE}
+# Ejercicio 2 – Aprendizaje No Supervisado
+# Parte A – Análisis Exploratorio de Datos
+
+# 1) Abra la base rock y renómbrela como “base”. Indique de qué trata el problema.
+```
+
+```{r eval=TRUE}
+base <- rock
+```
+
+```{r eval=FALSE}
+
+Este dataset consiste de mediciones de 48 rocas de reservorios de petroleo.
+
+```
+
+```{r eval=FALSE}
+# 2) Muestre un head, str y summary de la base. Comente las variables, cantidad de
+# registros, etc
+```
+
+```{r echo=T, eval=TRUE}
+head(base)
+```
+
+```{r echo=T, eval=TRUE}
+str(rock)
+```
+
+```{r echo=T, eval=TRUE}
+summary(base)
+```
+
+```{r eval=FALSE}
+La base de datos consiste en Mediciones de 48 muestras de reservorios de rocas
+de yacimientos de petróleo. Es un dataset de 48 filas con 4 columnas, siendo 
+las siguientes:
+
+base[, 1] area: área de poros, en píxeles de 256 por 256
+base[, 2] peri: perímetro en píxeles
+base[, 3] shape: perímetro / sqrt (área)
+base[, 4] perm: permeabilidad en mili-Darcies
+
+```
+
+
+
+
+```{r eval=FALSE}
+Parte B – Agrupamiento k-means
+```
+
+```{r eval=FALSE}
+1) Setee la semilla=101 y realice un agrupamiento k-means con Cantidad de Grupos =
+(asignado3) (con nstart por defecto). Indique el código R utilizado.
+
+
+Nota:
+ASIGNADO 3:
+Grupos 4
+```
+
+```{r echo=T, eval=TRUE}
+
+set.seed(101);km=kmeans(base,4)
+
+```
+
+```{r eval=FALSE}
+2) Muestre una captura de pantalla de los centroides.
+
+```
+
+```{r echo=T, eval=TRUE}
+km$centers #centroides
+```
+
+```{r eval=FALSE}
+3) ¿Cuántos elementos quedaron en cada grupo?
+```
+
+```{r echo=T, eval=TRUE}
+
+km$size
+
+GRUPO_1 = km$size[1]
+GRUPO_2 = km$size[2]
+GRUPO_3 = km$size[3] 
+GRUPO_4 = km$size[4]
+
+GRUPO_1
+GRUPO_2
+GRUPO_3
+GRUPO_4
+
+```
+
+```{r eval=FALSE}
+Como se verifica son 4 grupos de clusters con cantidades 17, 7, 17, 7
+```
+
+```{r eval=FALSE}
+4) ¿A qué grupo pertenece el tercer elemento de la base?
+```
+```{r eval=FALSE}
+Observando los elementos por grupo de cluster:
+```
+
+```{r echo=T, eval=TRUE}
+
+km$cluster  
+
+```
+
+```{r eval=FALSE}
+Vemos que el tercer elemento corresponde al grupo 1, si quisieramos obtenerlo
+directamente podemos directamente ejecutar lo siguiente:
+```
+
+```{r echo=T, eval=TRUE}
+
+km$cluster[3]  
+
+```
+
+```{r eval=FALSE}
+5) Realice un gráfico con dos variables coloreado por los grupos formados.
+```
+
+```{r echo=T, eval=TRUE}
+nueva=cbind(base,km$cluster)
+head(nueva)
+
+plot(base$area,base$peri,col=km$cluster)
+
+```
+
+```{r eval=FALSE}
+6) Determine alguna característica de alguno de los grupos
+```
+
+
+```{r echo=T, eval=TRUE}
+km$centers
+```
+```{r echo=T, eval=TRUE}
+boxplot(base,km$cluster)
+```
+
+```{r echo=T, eval=TRUE}
+pairs(base,col=km$cluster)
+```
+
+```{r echo=T, eval=TRUE}
+summary(base)
+```
+```{r echo=T, eval=TRUE}
+library(psych)
+```
+
+```{r echo=T, eval=TRUE}
+describeBy(base,km$cluster)
+```
+
+
+
+Como observamos, shape y perm no pueden usarse para discriminar diferencias
+entre las rocas de los yacimientos dado de que sus medias son muy similares ademas de 
+que la variabilidad con respecto al resto es prácticamente nula.
+
+
+
+```{r eval=FALSE}
+Parte C – Red Neuronal Kohonen
+```
+
+```{r eval=FALSE}
+
+
+1) Transforme la base en una matriz llamada “basesom”
+basesom=as.matrix(base)
+```
+
+\pagebreak
+
+```{r echo=T, eval=TRUE}
+basesom=as.matrix(rock)
+basesom
+```
+
+```{r eval=FALSE}
+2) Cargue la librería kohonen, setee la semilla=101 y realice un agrupamiento con una
+Red Neuronal Kohonen con Cantidad de Grupos = (asignado3) y forma “hexagonal”
+somgrid(1,cantGrupos,”hexagonal”)
+Indique el código R utilizado
+```
+
+```{r echo=T, eval=TRUE}
+library(kohonen)
+set.seed(101);som=som(basesom,grid=somgrid(1,4,"hexagonal"))
+```
+
+```{r eval=FALSE}
+3) Realice un gráfico con los vectores de pesos de la red
+```
+
+```{r echo=T, eval=TRUE}
+plot(som,type="codes")
+```
+```{r eval=FALSE}
+4) Realice un gráfico con la cantidad de elementos que quedaron en cada grupo.
+```
+
+```{r echo=T, eval=TRUE}
+cantidad=plot(som,type="count")
+```
+
+```{r eval=FALSE}
+5) Muestre una captura de pantalla de los vectores de pesos.
+```
+
+
+```{r echo=T, eval=TRUE}
+som$codes
+```
+```{r eval=FALSE}
+6) ¿Cuántos elementos quedaron en cada grupo?
+```
+
+```{r echo=T, eval=TRUE}
+cantidad
+```
+
+```{r eval=FALSE}
+Como podemos observar quedaron conformados:
+  
+Grupo1: 7
+Grupo2: 17
+Grupo3: 17
+Grupo4: 7
+
+
+```
+
+```{r eval=FALSE}
+7) ¿A qué grupo pertenece el tercer elemento de la base?
+```
+
+```{r echo=T, eval=TRUE}
+names(som)
+som$unit.classif[3]
+```
+```{r eval=FALSE}
+Como vemos el tercer elemento de la base pertenece al grupo 3
+```
+
+```{r eval=FALSE}
+8) Determine alguna característica de alguno de los grupos
+```
+
+```{r echo=T, eval=TRUE}
+describeBy(base,som$unit.classif)
+```
+
+
+Como podemos observar viendo la media del area el grupo 1 tiene las rocas mas pequeñas, el grupo 2 medianas, el grupo 3 grandes y el 4 gigantes
+
+
+```{r echo=T, eval=TRUE}
+boxplot(base$area~som$unit.classif, main="Area de cada Roca",
+   xlab="Numero de grupo", ylab="Área")
+```
+
+
+9) Optativo: Realice un gráfico con dos variables coloreado por los grupos formados.
+
+```{r echo=T, eval=TRUE}
+plot(base$area,base$shape,col=som$unit.classif,pch=19,
+     main="Gráfico de 2 variables - agrupamiento por Kohonen", 
+     xlab="Área", ylab="Shape")
+```
+
+
